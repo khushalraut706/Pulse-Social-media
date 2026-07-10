@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pulse — Social</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0A0A0F;--surface:#13131A;--card:#1C1C26;--card2:#21212E;
+  --accent:#7B5CF0;--accent2:#E879F9;--accent-dim:#7B5CF020;
+  --text:#F0EFFF;--muted:#8B8BA0;--border:#2A2A3A;--border2:#35354A;
+  --red:#F87171;--green:#4ADE80;--yellow:#FBBF24;
+  --r:12px;--r2:20px;--r3:999px;
+  --font-display:'Plus Jakarta Sans',sans-serif;
+  --font-body:'Inter',sans-serif;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:15px;line-height:1.6;min-height:100vh;overflow-x:hidden}
+img{max-width:100%;display:block}
+button{cursor:pointer;font-family:var(--font-body);border:none;background:none;color:inherit}
+input,textarea{font-family:var(--font-body);color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;font-size:14px;width:100%;outline:none;transition:.2s}
+input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
+textarea{resize:vertical;min-height:80px}
+a{color:inherit;text-decoration:none}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--surface)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
+
+/* ── Layout ── */
+.app-shell{display:none;grid-template-columns:260px 1fr 300px;min-height:100vh;gap:0}
+@media(max-width:1100px){.app-shell{grid-template-columns:64px 1fr}}
+@media(max-width:700px){.app-shell{grid-template-columns:1fr;grid-template-rows:auto 1fr auto}}
+.app-shell.visible{display:grid}
+
+/* ── Sidebar ── */
+.sidebar{position:sticky;top:0;height:100vh;overflow-y:auto;border-right:1px solid var(--border);padding:1.5rem 1rem;display:flex;flex-direction:column;gap:.5rem;background:var(--surface)}
+.sidebar-logo{font-family:var(--font-display);font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;padding:.5rem .75rem;margin-bottom:.5rem}
+.nav-item{display:flex;align-items:center;gap:.75rem;padding:.75rem;border-radius:var(--r);transition:.15s;color:var(--muted);font-size:15px;font-weight:500;white-space:nowrap}
+.nav-item:hover{background:var(--card);color:var(--text)}
+.nav-item.active{background:var(--accent-dim);color:var(--accent)}
+.nav-item .icon{font-size:1.25rem;flex-shrink:0}
+.nav-label{overflow:hidden}
+@media(max-width:1100px){.nav-label,.sidebar-logo-text{display:none}.sidebar-logo{font-size:1.2rem}}
+@media(max-width:700px){.sidebar{position:fixed;bottom:0;left:0;right:0;top:auto;height:auto;flex-direction:row;justify-content:space-around;border-right:none;border-top:1px solid var(--border);z-index:100;padding:.5rem}.nav-item{flex-direction:column;gap:2px;font-size:10px;padding:.4rem .6rem}}
+
+/* ── Main feed ── */
+.main-content{border-right:1px solid var(--border);min-height:100vh;max-width:700px;width:100%}
+@media(max-width:1100px){.main-content{border-right:none;max-width:100%}}
+.feed-header{position:sticky;top:0;background:rgba(10,10,15,.85);backdrop-filter:blur(12px);padding:1rem 1.5rem;border-bottom:1px solid var(--border);font-family:var(--font-display);font-weight:700;font-size:1.1rem;z-index:10;display:flex;align-items:center;gap:1rem}
+
+/* ── Right panel ── */
+.right-panel{padding:1.5rem 1rem;position:sticky;top:0;height:100vh;overflow-y:auto}
+@media(max-width:1100px){.right-panel{display:none}}
+
+/* ── Auth ── */
+#auth-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:2rem}
+.auth-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:2.5rem;width:100%;max-width:420px}
+.auth-logo{font-family:var(--font-display);font-size:2rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center;margin-bottom:.25rem}
+.auth-sub{text-align:center;color:var(--muted);font-size:13px;margin-bottom:2rem}
+.form-group{margin-bottom:1rem}
+.form-group label{display:block;font-size:13px;color:var(--muted);margin-bottom:.4rem;font-weight:500}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.7rem 1.25rem;border-radius:var(--r3);font-weight:600;font-size:14px;transition:.15s;cursor:pointer;border:none}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:#6d4fe0;transform:translateY(-1px)}
+.btn-primary:active{transform:translateY(0)}
+.btn-outline{background:transparent;border:1px solid var(--border2);color:var(--text)}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+.btn-ghost{background:transparent;color:var(--muted)}
+.btn-ghost:hover{color:var(--text)}
+.btn-danger{background:var(--red);color:#fff}
+.btn-full{width:100%}
+.btn-sm{padding:.4rem .85rem;font-size:13px}
+.auth-toggle{text-align:center;margin-top:1.5rem;color:var(--muted);font-size:13px}
+.auth-toggle span{color:var(--accent);cursor:pointer;font-weight:600}
+.auth-toggle span:hover{text-decoration:underline}
+.error-msg{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);color:var(--red);padding:.7rem 1rem;border-radius:var(--r);font-size:13px;margin-bottom:1rem;display:none}
+.error-msg.show{display:block}
+
+/* ── Post composer ── */
+.composer{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border)}
+.composer-row{display:flex;gap:.75rem}
+.avatar{border-radius:50%;object-fit:cover;flex-shrink:0;background:var(--card2)}
+.avatar-placeholder{border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;flex-shrink:0;font-family:var(--font-display)}
+.composer textarea{background:transparent;border:none;font-size:16px;color:var(--text);padding:6px 0;resize:none}
+.composer textarea:focus{box-shadow:none;border:none}
+.composer-actions{display:flex;align-items:center;justify-content:space-between;margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--border)}
+.char-count{font-size:12px;color:var(--muted)}
+.char-count.warn{color:var(--yellow)}
+.char-count.over{color:var(--red)}
+
+/* ── Post card ── */
+.post-card{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);transition:.15s}
+.post-card:hover{background:rgba(255,255,255,.02)}
+.post-header{display:flex;align-items:flex-start;gap:.75rem;margin-bottom:.75rem}
+.post-meta{flex:1}
+.post-meta .name{font-weight:600;font-size:15px;font-family:var(--font-display)}
+.post-meta .handle{color:var(--muted);font-size:13px}
+.post-meta .time{color:var(--muted);font-size:13px}
+.post-content{font-size:15px;line-height:1.65;margin-bottom:.75rem;color:var(--text)}
+.post-img{border-radius:var(--r);overflow:hidden;margin-bottom:.75rem;max-height:400px}
+.post-img img{width:100%;object-fit:cover;max-height:400px}
+.post-actions{display:flex;gap:1.5rem}
+.action-btn{display:flex;align-items:center;gap:.4rem;color:var(--muted);font-size:13px;transition:.15s;padding:.25rem .5rem;border-radius:var(--r);margin:-0.25rem -.5rem}
+.action-btn:hover{color:var(--text);background:var(--card2)}
+.action-btn.liked{color:var(--red)}
+.action-btn.liked svg{fill:var(--red)}
+.action-btn .icon{font-size:1rem}
+.action-btn span{font-weight:500}
+.post-options{margin-left:auto;color:var(--muted);padding:.25rem;border-radius:var(--r);transition:.15s}
+.post-options:hover{background:var(--card2);color:var(--text)}
+
+/* ── Comments ── */
+.comments-section{border-top:1px solid var(--border);padding-top:.75rem;margin-top:.5rem;display:none}
+.comments-section.open{display:block}
+.comment-item{display:flex;gap:.75rem;margin-bottom:.75rem}
+.comment-body{background:var(--surface);border-radius:0 var(--r) var(--r) var(--r);padding:.6rem .9rem;flex:1}
+.comment-body .name{font-weight:600;font-size:13px;font-family:var(--font-display)}
+.comment-body .text{font-size:13px;color:var(--text);margin-top:.1rem}
+.comment-body .meta{font-size:11px;color:var(--muted);margin-top:.25rem}
+.comment-form{display:flex;gap:.75rem;align-items:flex-start;margin-top:.5rem}
+.comment-form input{font-size:13px;padding:8px 12px}
+
+/* ── Profile ── */
+.profile-header{position:relative;padding-bottom:1rem}
+.profile-banner{height:140px;background:linear-gradient(135deg,var(--accent)40,var(--accent2)80);border-radius:0 0 var(--r) var(--r)}
+.profile-info{padding:0 1.5rem}
+.profile-avatar-wrap{margin-top:-40px;margin-bottom:.75rem}
+.profile-top-row{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:.75rem}
+.profile-name{font-family:var(--font-display);font-weight:700;font-size:1.3rem}
+.profile-handle{color:var(--muted);font-size:14px}
+.profile-bio{font-size:14px;color:var(--muted);margin:.5rem 0}
+.profile-stats{display:flex;gap:2rem;margin:.75rem 0}
+.profile-stat{text-align:center}
+.profile-stat .num{font-weight:700;font-size:1.1rem;font-family:var(--font-display)}
+.profile-stat .lbl{font-size:12px;color:var(--muted)}
+
+/* ── Dashboard ── */
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;padding:1.5rem}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;transition:.2s}
+.stat-card:hover{border-color:var(--accent);background:var(--card2)}
+.stat-card .icon{font-size:1.5rem;margin-bottom:.5rem}
+.stat-card .value{font-family:var(--font-display);font-weight:800;font-size:2rem;line-height:1}
+.stat-card .label{font-size:13px;color:var(--muted);margin-top:.25rem}
+
+/* ── Search ── */
+.search-input-wrap{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border)}
+.search-input-wrap input{background:var(--card);border-color:var(--border)}
+.user-list-item{display:flex;align-items:center;gap:.9rem;padding:1rem 1.5rem;border-bottom:1px solid var(--border);transition:.15s;cursor:pointer}
+.user-list-item:hover{background:rgba(255,255,255,.02)}
+.user-info{flex:1}
+.user-info .name{font-weight:600;font-size:15px;font-family:var(--font-display)}
+.user-info .handle{font-size:13px;color:var(--muted)}
+
+/* ── Badges & misc ── */
+.badge{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:var(--r3)}
+.badge-accent{background:var(--accent-dim);color:var(--accent)}
+.follow-btn{padding:.4rem 1rem;border-radius:var(--r3);font-size:13px;font-weight:600;transition:.15s;border:1px solid var(--accent);color:var(--accent);background:transparent}
+.follow-btn:hover{background:var(--accent);color:#fff}
+.follow-btn.following{border-color:var(--border2);color:var(--muted);background:transparent}
+.follow-btn.following:hover{border-color:var(--red);color:var(--red)}
+.page{display:none}
+.page.active{display:block}
+.empty-state{text-align:center;padding:4rem 2rem;color:var(--muted)}
+.empty-state .big{font-size:3rem;margin-bottom:.75rem}
+.empty-state p{font-size:15px}
+.toast{position:fixed;bottom:2rem;right:2rem;background:var(--card);border:1px solid var(--border2);padding:.8rem 1.25rem;border-radius:var(--r);font-size:14px;font-weight:500;z-index:9999;transform:translateY(2rem);opacity:0;transition:.3s;max-width:300px;box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{border-color:rgba(74,222,128,.3);background:rgba(74,222,128,.08);color:var(--green)}
+.toast.error{border-color:rgba(248,113,113,.3);background:rgba(248,113,113,.08);color:var(--red)}
+.section-title{font-family:var(--font-display);font-weight:700;font-size:1rem;color:var(--text);padding:.75rem 1rem .5rem;border-bottom:1px solid var(--border);margin-bottom:.5rem}
+.suggestion-item{display:flex;align-items:center;gap:.75rem;padding:.6rem .75rem;border-radius:var(--r);transition:.15s;cursor:pointer}
+.suggestion-item:hover{background:var(--card)}
+.divider{height:1px;background:var(--border);margin:.5rem 0}
+.loading{text-align:center;padding:3rem;color:var(--muted);font-size:14px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-overlay.open{display:flex}
+.modal{background:var(--card);border:1px solid var(--border2);border-radius:var(--r2);padding:2rem;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
+.modal-header h3{font-family:var(--font-display);font-weight:700;font-size:1.1rem}
+.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:1rem}
+.tab{padding:.6rem 1.25rem;font-size:14px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:.15s;margin-bottom:-1px}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tag{display:inline-block;background:var(--accent-dim);color:var(--accent);padding:2px 8px;border-radius:var(--r3);font-size:12px;font-weight:600}
+</style>
+</head>
+<body>
+
+<!-- Auth Screen -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">Pulse</div>
+    <div class="auth-sub" id="auth-subtitle">Connect. Share. Discover.</div>
+    <div class="error-msg" id="auth-error"></div>
+    <div id="login-form">
+      <div class="form-group"><label>Email</label><input type="email" id="login-email" placeholder="you@example.com"></div>
+      <div class="form-group"><label>Password</label><input type="password" id="login-password" placeholder="••••••••"></div>
+      <button class="btn btn-primary btn-full" onclick="handleLogin()">Sign in</button>
+      <div class="auth-toggle">No account? <span onclick="showRegister()">Create one</span></div>
+      <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)">
+        <p style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:.75rem">Demo accounts</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
+          <button class="btn btn-outline btn-sm" onclick="demoLogin('alex@pulse.app','password')">👤 Alex</button>
+          <button class="btn btn-outline btn-sm" onclick="demoLogin('maya@pulse.app','password')">👤 Maya</button>
+        </div>
+      </div>
+    </div>
+    <div id="register-form" style="display:none">
+      <div class="form-group"><label>Full Name</label><input type="text" id="reg-name" placeholder="Your name"></div>
+      <div class="form-group"><label>Username</label><input type="text" id="reg-username" placeholder="username"></div>
+      <div class="form-group"><label>Email</label><input type="email" id="reg-email" placeholder="you@example.com"></div>
+      <div class="form-group"><label>Password</label><input type="password" id="reg-password" placeholder="••••••••"></div>
+      <div class="form-group"><label>Profile Picture URL <span style="color:var(--muted);font-size:11px">(optional)</span></label><input type="url" id="reg-avatar" placeholder="https://..."></div>
+      <button class="btn btn-primary btn-full" onclick="handleRegister()">Create account</button>
+      <div class="auth-toggle">Have an account? <span onclick="showLogin()">Sign in</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- App Shell -->
+<div class="app-shell" id="app-shell">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">⚡ <span class="nav-label sidebar-logo-text">Pulse</span></div>
+    <a class="nav-item active" data-page="feed" onclick="navigate('feed')">
+      <svg class="icon" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="nav-label">Feed</span>
+    </a>
+    <a class="nav-item" data-page="explore" onclick="navigate('explore')">
+      <svg class="icon" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <span class="nav-label">Search</span>
+    </a>
+    <a class="nav-item" data-page="dashboard" onclick="navigate('dashboard')">
+      <svg class="icon" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      <span class="nav-label">Dashboard</span>
+    </a>
+    <a class="nav-item" data-page="profile-own" onclick="navigate('profile-own')">
+      <svg class="icon" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span class="nav-label">Profile</span>
+    </a>
+    <div style="flex:1"></div>
+    <button class="nav-item" onclick="handleLogout()">
+      <svg class="icon" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      <span class="nav-label">Logout</span>
+    </button>
+  </aside>
+
+  <!-- Main -->
+  <main class="main-content">
+
+    <!-- Feed Page -->
+    <div class="page active" id="page-feed">
+      <div class="feed-header">
+        <span>Home</span>
+        <div class="tabs" style="border:none;margin:0">
+          <div class="tab active" onclick="switchFeedTab('for-you',this)">For You</div>
+          <div class="tab" onclick="switchFeedTab('following',this)">Following</div>
+        </div>
+      </div>
+      <div class="composer" id="feed-composer">
+        <div class="composer-row">
+          <div class="avatar-placeholder" id="composer-avatar" style="width:44px;height:44px;font-size:16px">?</div>
+          <div style="flex:1">
+            <textarea id="post-content" placeholder="What's on your mind?" rows="2" oninput="updateCharCount()"></textarea>
+          </div>
+        </div>
+        <div class="composer-actions">
+          <div style="display:flex;gap:.75rem;align-items:center">
+            <button class="btn btn-ghost btn-sm" onclick="toggleImageInput()" title="Add image">
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </button>
+            <input type="url" id="post-img-url" placeholder="Image URL..." style="display:none;width:200px;font-size:12px;padding:6px 10px">
+          </div>
+          <div style="display:flex;align-items:center;gap:.75rem">
+            <span class="char-count" id="char-count">280</span>
+            <button class="btn btn-primary btn-sm" onclick="createPost()">Post</button>
+          </div>
+        </div>
+      </div>
+      <div id="feed-posts"></div>
+    </div>
+
+    <!-- Explore Page -->
+    <div class="page" id="page-explore">
+      <div class="feed-header">Search</div>
+      <div class="search-input-wrap">
+        <input type="text" id="search-input" placeholder="Search users..." oninput="handleSearch()" style="background:var(--card)">
+      </div>
+      <div id="search-results"></div>
+    </div>
+
+    <!-- Dashboard Page -->
+    <div class="page" id="page-dashboard">
+      <div class="feed-header">Dashboard</div>
+      <div id="dashboard-content"></div>
+    </div>
+
+    <!-- Own Profile Page -->
+    <div class="page" id="page-profile-own">
+      <div id="own-profile-content"></div>
+    </div>
+
+    <!-- Other User Profile Page -->
+    <div class="page" id="page-profile-user">
+      <div class="feed-header">
+        <button class="btn btn-ghost btn-sm" onclick="navigate('feed')" style="padding:.3rem .5rem;margin-left:-.5rem">
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <span id="profile-header-name">Profile</span>
+      </div>
+      <div id="user-profile-content"></div>
+    </div>
+
+  </main>
+
+  <!-- Right Panel -->
+  <aside class="right-panel" id="right-panel">
+    <div id="right-search" style="margin-bottom:1.5rem">
+      <input type="text" placeholder="Quick search..." oninput="handleRightSearch(this.value)" style="background:var(--card);font-size:13px;padding:8px 14px">
+    </div>
+    <div id="suggestions-panel"></div>
+    <div id="trending-panel" style="margin-top:1.5rem"></div>
+  </aside>
+</div>
+
+<!-- Edit Profile Modal -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Edit Profile</h3>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('edit-modal')">✕</button>
+    </div>
+    <div class="form-group"><label>Full Name</label><input type="text" id="edit-name"></div>
+    <div class="form-group"><label>Bio</label><textarea id="edit-bio" rows="3"></textarea></div>
+    <div class="form-group"><label>Profile Picture URL</label><input type="url" id="edit-avatar"></div>
+    <div style="display:flex;gap:.75rem;justify-content:flex-end;margin-top:1rem">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('edit-modal')">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveProfile()">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Post Modal -->
+<div class="modal-overlay" id="edit-post-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Edit post</h3>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('edit-post-modal')">✕</button>
+    </div>
+    <div class="form-group"><textarea id="edit-post-content" rows="4"></textarea></div>
+    <div class="form-group"><label>Image URL</label><input type="url" id="edit-post-img"></div>
+    <div style="display:flex;gap:.75rem;justify-content:flex-end">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('edit-post-modal')">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveEditedPost()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Followers/Following Modal -->
+<div class="modal-overlay" id="follow-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="follow-modal-title">Followers</h3>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('follow-modal')">✕</button>
+    </div>
+    <div id="follow-modal-list"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ╔══════════════════════════════════════════╗
+// ║            DATABASE (localStorage)      ║
+// ╚══════════════════════════════════════════╝
+const DB = {
+  get(key){try{return JSON.parse(localStorage.getItem('pulse_'+key)||'null')}catch{return null}},
+  set(key,val){localStorage.setItem('pulse_'+key,JSON.stringify(val))},
+  getUsers(){return this.get('users')||[]},
+  getPosts(){return this.get('posts')||[]},
+  setUsers(u){this.set('users',u)},
+  setPosts(p){this.set('posts',p)},
+  getUser(id){return this.getUsers().find(u=>u.id===id)},
+  getUserByEmail(e){return this.getUsers().find(u=>u.email===e)},
+  getUserByUsername(u){return this.getUsers().find(x=>x.username===u)},
+};
+
+// ╔══════════════════════════════════════════╗
+// ║              SEED DATA                  ║
+// ╚══════════════════════════════════════════╝
+function seedData(){
+  if(DB.getUsers().length>0)return;
+  const users=[
+    {id:'u1',name:'Alex Rivera',username:'alexrivera',email:'alex@pulse.app',password:'password',avatar:'https://api.dicebear.com/7.x/avataaars/svg?seed=alex',bio:'Designer & dreamer. Building cool things 🚀',followers:['u2','u3'],following:['u2'],createdAt:Date.now()-86400000*30},
+    {id:'u2',name:'Maya Chen',username:'mayachen',email:'maya@pulse.app',password:'password',avatar:'https://api.dicebear.com/7.x/avataaars/svg?seed=maya',bio:'Full-stack dev | Coffee addict ☕ | she/her',followers:['u1'],following:['u1','u3'],createdAt:Date.now()-86400000*20},
+    {id:'u3',name:'Sam Okafor',username:'samokafor',email:'sam@pulse.app',password:'password',avatar:'https://api.dicebear.com/7.x/avataaars/svg?seed=sam',bio:'Photographer & traveler 📷',followers:['u2'],following:['u1'],createdAt:Date.now()-86400000*15},
+    {id:'u4',name:'Jordan Kim',username:'jordankim',email:'jordan@pulse.app',password:'password',avatar:'https://api.dicebear.com/7.x/avataaars/svg?seed=jordan',bio:'Musician & music producer 🎵',followers:['u1','u2'],following:['u2'],createdAt:Date.now()-86400000*10},
+  ];
+  const now=Date.now();
+  const posts=[
+    {id:'p1',authorId:'u2',content:'Just shipped a new feature that reduces load time by 60%! The key was lazy loading combined with smarter caching. Sometimes the best optimizations are the ones users never notice 🚀',imageUrl:'',likes:['u1','u3'],comments:[{id:'c1',authorId:'u1',text:'Amazing work! Would love to see a writeup on the caching strategy.',createdAt:now-3600000*2}],createdAt:now-3600000*5},
+    {id:'p2',authorId:'u3',content:'Golden hour in Kyoto last week. This city is absolutely magical at sunset 🌅',imageUrl:'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&auto=format&fit=crop',likes:['u1','u2','u4'],comments:[{id:'c2',authorId:'u4',text:'This is stunning! What camera did you use?',createdAt:now-3600000*3}],createdAt:now-3600000*8},
+    {id:'p3',authorId:'u1',content:'Hot take: The best UI is the one your users never have to think about. Spent the last week obsessing over micro-interactions and I can already see the difference in user retention 📊',imageUrl:'',likes:['u2','u4'],comments:[],createdAt:now-3600000*12},
+    {id:'p4',authorId:'u4',content:'New track dropping Friday 🎵 Been working on this one for 3 months. Electronic meets jazz — let me know what you think when it\'s out!',imageUrl:'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&auto=format&fit=crop',likes:['u1','u2','u3'],comments:[{id:'c3',authorId:'u2',text:'Cannot wait!! Your last release was 🔥',createdAt:now-3600000*1}],createdAt:now-3600000*18},
+    {id:'p5',authorId:'u2',content:'Just finished reading "The Pragmatic Programmer" for the third time. Still find new wisdom every read. What tech books have shaped how you think about software?',imageUrl:'',likes:['u1'],comments:[{id:'c4',authorId:'u3',text:'"Clean Code" changed my life honestly.',createdAt:now-3600000*6}],createdAt:now-3600000*24},
+    {id:'p6',authorId:'u3',content:'Street photography in Tokyo. The city never stops moving 🏙️',imageUrl:'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&auto=format&fit=crop',likes:['u1','u2','u4'],comments:[],createdAt:now-3600000*30},
+  ];
+  DB.setUsers(users);DB.setPosts(posts);
+}
+
+// ╔══════════════════════════════════════════╗
+// ║              AUTH                        ║
+// ╚══════════════════════════════════════════╝
+let currentUser=null;
+let currentPage='feed';
+let editingPostId=null;
+let feedTab='for-you';
+
+function generateId(){return Math.random().toString(36).slice(2)+Date.now().toString(36)}
+function generateToken(uid){return btoa(uid+':'+Date.now())}
+function hashPassword(p){let h=0;for(let i=0;i<p.length;i++)h=(h<<5)-h+p.charCodeAt(i);return h.toString(36)}
+
+function handleLogin(){
+  const email=document.getElementById('login-email').value.trim();
+  const pass=document.getElementById('login-password').value;
+  const err=document.getElementById('auth-error');
+  err.classList.remove('show');
+  if(!email||!pass){showAuthError('Please fill in all fields');return}
+  const user=DB.getUserByEmail(email);
+  if(!user){showAuthError('No account found with that email');return}
+  if(user.password!==pass&&user.password!==hashPassword(pass)){showAuthError('Incorrect password');return}
+  loginUser(user);
+}
+
+function demoLogin(email,pass){
+  document.getElementById('login-email').value=email;
+  document.getElementById('login-password').value=pass;
+  handleLogin();
+}
+
+function handleRegister(){
+  const name=document.getElementById('reg-name').value.trim();
+  const username=document.getElementById('reg-username').value.trim().toLowerCase();
+  const email=document.getElementById('reg-email').value.trim().toLowerCase();
+  const pass=document.getElementById('reg-password').value;
+  const avatar=document.getElementById('reg-avatar').value.trim();
+  if(!name||!username||!email||!pass){showAuthError('Please fill in all required fields');return}
+  if(username.length<3){showAuthError('Username must be at least 3 characters');return}
+  if(!/^[a-z0-9_]+$/.test(username)){showAuthError('Username can only contain letters, numbers, underscores');return}
+  if(DB.getUserByEmail(email)){showAuthError('An account with that email already exists');return}
+  if(DB.getUserByUsername(username)){showAuthError('That username is taken');return}
+  const user={id:'u'+generateId(),name,username,email,password:hashPassword(pass),avatar:avatar||`https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`,bio:'',followers:[],following:[],createdAt:Date.now()};
+  const users=DB.getUsers();users.push(user);DB.setUsers(users);
+  loginUser(user);
+}
+
+function loginUser(user){
+  currentUser=user;
+  const token=generateToken(user.id);
+  localStorage.setItem('pulse_token',token);
+  localStorage.setItem('pulse_uid',user.id);
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('app-shell').classList.add('visible');
+  initApp();
+}
+
+function handleLogout(){
+  currentUser=null;
+  localStorage.removeItem('pulse_token');
+  localStorage.removeItem('pulse_uid');
+  document.getElementById('app-shell').classList.remove('visible');
+  document.getElementById('auth-screen').style.display='flex';
+  showLogin();
+}
+
+function checkSession(){
+  const uid=localStorage.getItem('pulse_uid');
+  const token=localStorage.getItem('pulse_token');
+  if(!uid||!token)return false;
+  const user=DB.getUser(uid);
+  if(!user)return false;
+  currentUser=user;return true;
+}
+
+function showAuthError(msg){
+  const el=document.getElementById('auth-error');
+  el.textContent=msg;el.classList.add('show');
+}
+function showRegister(){document.getElementById('login-form').style.display='none';document.getElementById('register-form').style.display='block';document.getElementById('auth-subtitle').textContent='Join Pulse today'}
+function showLogin(){document.getElementById('register-form').style.display='none';document.getElementById('login-form').style.display='block';document.getElementById('auth-subtitle').textContent='Connect. Share. Discover.';document.getElementById('auth-error').classList.remove('show')}
+
+// ╔══════════════════════════════════════════╗
+// ║              NAVIGATION                 ║
+// ╚══════════════════════════════════════════╝
+function navigate(page,userId){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const targetPage=userId?'profile-user':page;
+  const el=document.getElementById('page-'+targetPage);
+  if(el)el.classList.add('active');
+  const navEl=document.querySelector(`[data-page="${page}"]`);
+  if(navEl)navEl.classList.add('active');
+  currentPage=targetPage;
+  if(page==='feed'){renderFeed();renderRightPanel()}
+  else if(page==='explore'){renderSearch('')}
+  else if(page==='dashboard'){renderDashboard()}
+  else if(page==='profile-own'){renderOwnProfile()}
+  else if(page==='profile-user'&&userId){renderUserProfile(userId)}
+}
+
+// ╔══════════════════════════════════════════╗
+// ║              RENDER HELPERS             ║
+// ╚══════════════════════════════════════════╝
+function avatarHtml(user,size=44){
+  if(!user)return`<div class="avatar-placeholder" style="width:${size}px;height:${size}px;font-size:${size*0.35}px">?</div>`;
+  const s=size;
+  if(user.avatar&&!user.avatar.startsWith('https://api.dicebear')){
+    return`<img src="${user.avatar}" class="avatar" style="width:${s}px;height:${s}px" onerror="this.outerHTML=initials('${user.name}',${s})">`;
+  }
+  return`<img src="${user.avatar}" class="avatar" style="width:${s}px;height:${s}px" alt="${user.name}">`;
+}
+function initialsHtml(name,size=44){
+  const i=(name||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  return`<div class="avatar-placeholder" style="width:${size}px;height:${size}px;font-size:${Math.round(size*0.35)}px">${i}</div>`;
+}
+function timeAgo(ts){
+  const d=(Date.now()-ts)/1000;
+  if(d<60)return'just now';if(d<3600)return Math.floor(d/60)+'m';
+  if(d<86400)return Math.floor(d/3600)+'h';if(d<604800)return Math.floor(d/86400)+'d';
+  return new Date(ts).toLocaleDateString();
+}
+function escHtml(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+// ╔══════════════════════════════════════════╗
+// ║              FEED                       ║
+// ╚══════════════════════════════════════════╝
+function renderFeed(){
+  const cu=DB.getUser(currentUser.id);
+  const av=document.getElementById('composer-avatar');
+  av.outerHTML=`<div id="composer-avatar">${avatarHtml(cu,44)}</div>`;
+  let posts=DB.getPosts().sort((a,b)=>b.createdAt-a.createdAt);
+  if(feedTab==='following'){posts=posts.filter(p=>cu.following.includes(p.authorId)||p.authorId===cu.id)}
+  const container=document.getElementById('feed-posts');
+  if(posts.length===0){container.innerHTML=`<div class="empty-state"><div class="big">✨</div><p>${feedTab==='following'?'Follow some people to see their posts':'No posts yet — be the first!'}</p></div>`;return}
+  container.innerHTML=posts.map(p=>renderPostCard(p)).join('');
+}
+
+function switchFeedTab(tab,el){
+  feedTab=tab;
+  document.querySelectorAll('#page-feed .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');renderFeed();
+}
+
+function renderPostCard(post,forProfile=false){
+  const author=DB.getUser(post.authorId);if(!author)return'';
+  const cu=DB.getUser(currentUser.id);
+  const liked=post.likes.includes(cu.id);
+  const isOwn=post.authorId===cu.id;
+  const commentsHtml=post.comments.map(c=>{
+    const ca=DB.getUser(c.authorId);if(!ca)return'';
+    return`<div class="comment-item">
+      <div onclick="navigate('profile-user','${ca.id}')" style="cursor:pointer">${avatarHtml(ca,32)}</div>
+      <div class="comment-body">
+        <div class="name">${escHtml(ca.name)} <span style="color:var(--muted);font-weight:400">@${ca.username}</span></div>
+        <div class="text">${escHtml(c.text)}</div>
+        <div class="meta">${timeAgo(c.createdAt)}${c.authorId===cu.id?` · <button class="btn btn-ghost" style="font-size:11px;padding:0;color:var(--red)" onclick="deleteComment('${post.id}','${c.id}')">Delete</button>`:''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  return`<div class="post-card" id="post-${post.id}">
+    <div class="post-header">
+      <div onclick="navigate('profile-user','${author.id}')" style="cursor:pointer">${avatarHtml(author,44)}</div>
+      <div class="post-meta">
+        <div><span class="name" onclick="navigate('profile-user','${author.id}')" style="cursor:pointer">${escHtml(author.name)}</span> <span style="color:var(--muted);font-size:13px">@${author.username}</span></div>
+        <div class="time">${timeAgo(post.createdAt)}</div>
+      </div>
+      ${isOwn?`<div class="post-options" style="position:relative">
+        <button onclick="togglePostMenu('${post.id}')" class="btn btn-ghost btn-sm" style="padding:.25rem .5rem">···</button>
+        <div id="menu-${post.id}" style="display:none;position:absolute;right:0;top:100%;background:var(--card2);border:1px solid var(--border2);border-radius:var(--r);padding:.4rem;z-index:50;min-width:120px">
+          <button class="btn btn-ghost" style="width:100%;text-align:left;padding:.4rem .7rem;font-size:13px" onclick="openEditPost('${post.id}')">✏️ Edit</button>
+          <button class="btn btn-ghost" style="width:100%;text-align:left;padding:.4rem .7rem;font-size:13px;color:var(--red)" onclick="deletePost('${post.id}')">🗑️ Delete</button>
+        </div>
+      </div>`:''}
+    </div>
+    <div class="post-content">${escHtml(post.content)}</div>
+    ${post.imageUrl?`<div class="post-img"><img src="${escHtml(post.imageUrl)}" alt="Post image" loading="lazy"></div>`:''}
+    <div class="post-actions">
+      <button class="action-btn ${liked?'liked':''}" onclick="toggleLike('${post.id}')">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="${liked?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"></path></svg>
+        <span>${post.likes.length}</span>
+      </button>
+      <button class="action-btn" onclick="toggleComments('${post.id}')">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path></svg>
+        <span>${post.comments.length}</span>
+      </button>
+      <button class="action-btn" onclick="sharePost('${post.id}')">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        <span>Share</span>
+      </button>
+    </div>
+    <div class="comments-section" id="comments-${post.id}">
+      ${commentsHtml}
+      <div class="comment-form">
+        ${avatarHtml(DB.getUser(currentUser.id),32)}
+        <input type="text" id="comment-input-${post.id}" placeholder="Add a comment..." onkeydown="if(event.key==='Enter')addComment('${post.id}')">
+        <button class="btn btn-primary btn-sm" onclick="addComment('${post.id}')">Post</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function togglePostMenu(postId){
+  const menu=document.getElementById('menu-'+postId);
+  const isOpen=menu.style.display==='block';
+  document.querySelectorAll('[id^="menu-"]').forEach(m=>m.style.display='none');
+  menu.style.display=isOpen?'none':'block';
+}
+document.addEventListener('click',e=>{if(!e.target.closest('.post-options'))document.querySelectorAll('[id^="menu-"]').forEach(m=>m.style.display='none')});
+
+// ╔══════════════════════════════════════════╗
+// ║              POSTS CRUD                 ║
+// ╚══════════════════════════════════════════╝
+function createPost(){
+  const content=document.getElementById('post-content').value.trim();
+  const imgUrl=document.getElementById('post-img-url').value.trim();
+  if(!content){showToast('Write something first!','error');return}
+  if(content.length>280){showToast('Post too long (max 280 chars)','error');return}
+  const post={id:'p'+generateId(),authorId:currentUser.id,content,imageUrl:imgUrl,likes:[],comments:[],createdAt:Date.now()};
+  const posts=DB.getPosts();posts.unshift(post);DB.setPosts(posts);
+  document.getElementById('post-content').value='';
+  document.getElementById('post-img-url').value='';
+  document.getElementById('post-img-url').style.display='none';
+  updateCharCount();renderFeed();showToast('Posted! ✨','success');
+}
+
+function openEditPost(postId){
+  document.querySelectorAll('[id^="menu-"]').forEach(m=>m.style.display='none');
+  const post=DB.getPosts().find(p=>p.id===postId);if(!post)return;
+  editingPostId=postId;
+  document.getElementById('edit-post-content').value=post.content;
+  document.getElementById('edit-post-img').value=post.imageUrl||'';
+  openModal('edit-post-modal');
+}
+function saveEditedPost(){
+  const posts=DB.getPosts();
+  const idx=posts.findIndex(p=>p.id===editingPostId);if(idx===-1)return;
+  const content=document.getElementById('edit-post-content').value.trim();
+  if(!content){showToast('Content cannot be empty','error');return}
+  posts[idx].content=content;
+  posts[idx].imageUrl=document.getElementById('edit-post-img').value.trim();
+  DB.setPosts(posts);closeModal('edit-post-modal');
+  renderCurrentPage();showToast('Post updated','success');
+}
+function deletePost(postId){
+  if(!confirm('Delete this post?'))return;
+  const posts=DB.getPosts().filter(p=>p.id!==postId);DB.setPosts(posts);
+  renderCurrentPage();showToast('Post deleted','success');
+}
+
+function toggleLike(postId){
+  const posts=DB.getPosts();
+  const post=posts.find(p=>p.id===postId);if(!post)return;
+  const idx=post.likes.indexOf(currentUser.id);
+  if(idx===-1)post.likes.push(currentUser.id);else post.likes.splice(idx,1);
+  DB.setPosts(posts);
+  const card=document.getElementById('post-'+postId);
+  if(card){const html=renderPostCard(post);const tmp=document.createElement('div');tmp.innerHTML=html;card.replaceWith(tmp.firstChild)}
+}
+
+function toggleComments(postId){
+  const el=document.getElementById('comments-'+postId);
+  el.classList.toggle('open');
+  if(el.classList.contains('open'))document.getElementById('comment-input-'+postId)?.focus();
+}
+
+function addComment(postId){
+  const input=document.getElementById('comment-input-'+postId);
+  const text=input.value.trim();if(!text)return;
+  const posts=DB.getPosts();
+  const post=posts.find(p=>p.id===postId);if(!post)return;
+  post.comments.push({id:'c'+generateId(),authorId:currentUser.id,text,createdAt:Date.now()});
+  DB.setPosts(posts);input.value='';
+  const card=document.getElementById('post-'+postId);
+  if(card){const html=renderPostCard(post);const tmp=document.createElement('div');tmp.innerHTML=html;const newCard=tmp.firstChild;card.replaceWith(newCard);document.getElementById('comments-'+postId).classList.add('open')}
+}
+
+function deleteComment(postId,commentId){
+  const posts=DB.getPosts();
+  const post=posts.find(p=>p.id===postId);if(!post)return;
+  post.comments=post.comments.filter(c=>c.id!==commentId);
+  DB.setPosts(posts);
+  const card=document.getElementById('post-'+postId);
+  if(card){const html=renderPostCard(post);const tmp=document.createElement('div');tmp.innerHTML=html;const newCard=tmp.firstChild;card.replaceWith(newCard);document.getElementById('comments-'+postId).classList.add('open')}
+}
+
+function sharePost(postId){showToast('Link copied to clipboard 🔗','success')}
+
+function updateCharCount(){
+  const len=document.getElementById('post-content').value.length;
+  const remaining=280-len;
+  const el=document.getElementById('char-count');
+  el.textContent=remaining;
+  el.className='char-count'+(remaining<50?' warn':'')+(remaining<0?' over':'');
+}
+function toggleImageInput(){
+  const inp=document.getElementById('post-img-url');
+  inp.style.display=inp.style.display==='none'?'block':'none';
+  if(inp.style.display==='block')inp.focus();
+}
+
+// ╔══════════════════════════════════════════╗
+// ║              PROFILE                    ║
+// ╚══════════════════════════════════════════╝
+function renderProfilePage(userId,containerId){
+  const user=DB.getUser(userId);if(!user){document.getElementById(containerId).innerHTML='<div class="empty-state"><p>User not found</p></div>';return}
+  const cu=DB.getUser(currentUser.id);
+  const isOwn=userId===cu.id;
+  const isFollowing=cu.following.includes(userId);
+  const userPosts=DB.getPosts().filter(p=>p.authorId===userId).sort((a,b)=>b.createdAt-a.createdAt);
+  const totalLikes=userPosts.reduce((s,p)=>s+p.likes.length,0);
+  document.getElementById(containerId).innerHTML=`
+    <div class="profile-header">
+      <div class="profile-banner"></div>
+      <div class="profile-info">
+        <div class="profile-top-row">
+          <div class="profile-avatar-wrap">${avatarHtml(user,80)}</div>
+          ${isOwn?`<button class="btn btn-outline btn-sm" onclick="openEditProfile()">Edit profile</button>`
+            :`<button class="follow-btn ${isFollowing?'following':''}" id="follow-btn-${userId}" onclick="toggleFollow('${userId}')">${isFollowing?'Following':'Follow'}</button>`}
+        </div>
+        <div class="profile-name">${escHtml(user.name)}</div>
+        <div class="profile-handle">@${user.username}</div>
+        ${user.bio?`<div class="profile-bio">${escHtml(user.bio)}</div>`:''}
+        <div class="profile-stats">
+          <div class="profile-stat" onclick="openFollowModal('${userId}','followers')" style="cursor:pointer">
+            <div class="num">${user.followers.length}</div><div class="lbl">Followers</div>
+          </div>
+          <div class="profile-stat" onclick="openFollowModal('${userId}','following')" style="cursor:pointer">
+            <div class="num">${user.following.length}</div><div class="lbl">Following</div>
+          </div>
+          <div class="profile-stat">
+            <div class="num">${userPosts.length}</div><div class="lbl">Posts</div>
+          </div>
+          <div class="profile-stat">
+            <div class="num">${totalLikes}</div><div class="lbl">Likes</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>${userPosts.length===0?`<div class="empty-state"><div class="big">📝</div><p>${isOwn?'Share your first post!':'No posts yet'}</p></div>`:userPosts.map(p=>renderPostCard(p,true)).join('')}</div>
+  `;
+}
+
+function renderOwnProfile(){renderProfilePage(currentUser.id,'own-profile-content')}
+function renderUserProfile(userId){
+  const user=DB.getUser(userId);
+  if(user)document.getElementById('profile-header-name').textContent=user.name;
+  renderProfilePage(userId,'user-profile-content');
+}
+
+function openEditProfile(){
+  const u=DB.getUser(currentUser.id);
+  document.getElementById('edit-name').value=u.name;
+  document.getElementById('edit-bio').value=u.bio||'';
+  document.getElementById('edit-avatar').value=u.avatar||'';
+  openModal('edit-modal');
+}
+function saveProfile(){
+  const name=document.getElementById('edit-name').value.trim();
+  const bio=document.getElementById('edit-bio').value.trim();
+  const avatar=document.getElementById('edit-avatar').value.trim();
+  if(!name){showToast('Name cannot be empty','error');return}
+  const users=DB.getUsers();
+  const idx=users.findIndex(u=>u.id===currentUser.id);
+  users[idx].name=name;users[idx].bio=bio;
+  if(avatar)users[idx].avatar=avatar;
+  DB.setUsers(users);currentUser=users[idx];
+  closeModal('edit-modal');renderOwnProfile();showToast('Profile updated ✅','success');
+}
+
+// ╔══════════════════════════════════════════╗
+// ║              FOLLOW                     ║
+// ╚══════════════════════════════════════════╝
+function toggleFollow(targetId){
+  const users=DB.getUsers();
+  const cu=users.find(u=>u.id===currentUser.id);
+  const target=users.find(u=>u.id===targetId);
+  if(!cu||!target)return;
+  const idx=cu.following.indexOf(targetId);
+  if(idx===-1){cu.following.push(targetId);if(!target.followers.includes(cu.id))target.followers.push(cu.id);showToast(`Following @${target.username}`,'success')}
+  else{cu.following.splice(idx,1);target.followers=target.followers.filter(f=>f!==cu.id);showToast(`Unfollowed @${target.username}`)}
+  DB.setUsers(users);currentUser=cu;
+  const btn=document.getElementById('follow-btn-'+targetId);
+  if(btn){const following=cu.following.includes(targetId);btn.textContent=following?'Following':'Follow';btn.className='follow-btn'+(following?' following':'')}
+  renderRightPanel();
+}
+
+function openFollowModal(userId,type){
+  const user=DB.getUser(userId);if(!user)return;
+  const ids=type==='followers'?user.followers:user.following;
+  document.getElementById('follow-modal-title').textContent=type==='followers'?`${user.followers.length} Followers`:`${user.following.length} Following`;
+  const cu=DB.getUser(currentUser.id);
+  const html=ids.length===0?`<div class="empty-state" style="padding:2rem"><p>No ${type} yet</p></div>`:ids.map(id=>{
+    const u=DB.getUser(id);if(!u)return'';
+    const isCu=id===cu.id;const isFollowing=cu.following.includes(id);
+    return`<div class="user-list-item" onclick="closeModal('follow-modal');navigate('profile-user','${id}')">
+      ${avatarHtml(u,44)}
+      <div class="user-info"><div class="name">${escHtml(u.name)}</div><div class="handle">@${u.username}</div></div>
+      ${!isCu?`<button class="follow-btn ${isFollowing?'following':''}" onclick="event.stopPropagation();toggleFollow('${id}')" id="follow-btn-${id}">${isFollowing?'Following':'Follow'}</button>`:''}
+    </div>`;
+  }).join('');
+  document.getElementById('follow-modal-list').innerHTML=html;
+  openModal('follow-modal');
+}
+
+// ╔══════════════════════════════════════════╗
+// ║              SEARCH                     ║
+// ╚══════════════════════════════════════════╝
+function handleSearch(){const q=document.getElementById('search-input').value;renderSearch(q)}
+function handleRightSearch(q){if(q.length>0)renderSearch(q,'search-results');else renderRightPanel()}
+
+function renderSearch(query,containerId='search-results'){
+  const users=DB.getUsers();
+  const cu=DB.getUser(currentUser.id);
+  const q=query.toLowerCase();
+  const matches=q?users.filter(u=>u.id!==cu.id&&(u.name.toLowerCase().includes(q)||u.username.toLowerCase().includes(q))):users.filter(u=>u.id!==cu.id);
+  const html=matches.length===0?`<div class="empty-state"><div class="big">🔍</div><p>${q?'No users found':'Search for people on Pulse'}</p></div>`:
+    matches.map(u=>{
+      const isFollowing=cu.following.includes(u.id);
+      const postCount=DB.getPosts().filter(p=>p.authorId===u.id).length;
+      return`<div class="user-list-item" onclick="navigate('profile-user','${u.id}')">
+        ${avatarHtml(u,48)}
+        <div class="user-info">
+          <div class="name">${escHtml(u.name)}</div>
+          <div class="handle">@${u.username} · ${postCount} posts · ${u.followers.length} followers</div>
+        </div>
+        <button class="follow-btn ${isFollowing?'following':''}" id="follow-btn-${u.id}" onclick="event.stopPropagation();toggleFollow('${u.id}')">${isFollowing?'Following':'Follow'}</button>
+      </div>`;
+    }).join('');
+  const container=document.getElementById(containerId);
+  if(container)container.innerHTML=html;
+}
+
+// ╔══════════════════════════════════════════╗
+// ║              DASHBOARD                  ║
+// ╚══════════════════════════════════════════╝
+function renderDashboard(){
+  const cu=DB.getUser(currentUser.id);
+  const posts=DB.getPosts().filter(p=>p.authorId===cu.id).sort((a,b)=>b.createdAt-a.createdAt);
+  const totalLikes=posts.reduce((s,p)=>s+p.likes.length,0);
+  const totalComments=posts.reduce((s,p)=>s+p.comments.length,0);
+  const allPosts=DB.getPosts();
+  const recentActivity=allPosts.filter(p=>{
+    if(p.authorId!==cu.id&&p.likes.includes(cu.id))return true;
+    return p.comments.some(c=>c.authorId===cu.id&&p.authorId!==cu.id);
+  }).sort((a,b)=>b.createdAt-a.createdAt).slice(0,5);
+
+  document.getElementById('dashboard-content').innerHTML=`
+    <div style="padding:1.5rem 1.5rem 0">
+      <div style="display:flex;align-items:center;gap:.9rem;margin-bottom:1.25rem">
+        ${avatarHtml(cu,52)}
+        <div>
+          <div style="font-family:var(--font-display);font-weight:700;font-size:1.1rem">${escHtml(cu.name)}</div>
+          <div style="color:var(--muted);font-size:13px">@${cu.username} · Joined ${new Date(cu.createdAt).toLocaleDateString('en-US',{month:'long',year:'numeric'})}</div>
+        </div>
+      </div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="icon">📝</div>
+        <div class="value">${posts.length}</div>
+        <div class="label">Total posts</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon">❤️</div>
+        <div class="value">${totalLikes}</div>
+        <div class="label">Likes received</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon">👥</div>
+        <div class="value">${cu.followers.length}</div>
+        <div class="label">Followers</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon">✉️</div>
+        <div class="value">${totalComments}</div>
+        <div class="label">Comments received</div>
+      </div>
+    </div>
+    <div style="padding:0 1.5rem 1.5rem">
+      <div class="section-title" style="padding-left:0;border:none;margin-bottom:1rem">Recent posts</div>
+      ${posts.slice(0,3).map(p=>`
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1rem;margin-bottom:.75rem">
+          <div style="font-size:14px;margin-bottom:.5rem;color:var(--text)">${escHtml(p.content.slice(0,120))}${p.content.length>120?'…':''}</div>
+          <div style="font-size:12px;color:var(--muted);display:flex;gap:1rem">
+            <span>❤️ ${p.likes.length}</span>
+            <span>💬 ${p.comments.length}</span>
+            <span>${timeAgo(p.createdAt)}</span>
+          </div>
+        </div>`).join('')}
+      ${posts.length===0?`<div class="empty-state" style="padding:2rem 0"><p>No posts yet. Share something!</p></div>`:''}
+      ${recentActivity.length>0?`
+        <div class="section-title" style="padding-left:0;border:none;margin-top:1rem;margin-bottom:1rem">Your activity</div>
+        ${recentActivity.map(p=>{
+          const author=DB.getUser(p.authorId);if(!author)return'';
+          const myComment=p.comments.find(c=>c.authorId===cu.id);
+          const iLiked=p.likes.includes(cu.id)&&p.authorId!==cu.id;
+          return`<div style="display:flex;align-items:center;gap:.75rem;padding:.6rem 0;border-bottom:1px solid var(--border)">
+            ${avatarHtml(author,36)}
+            <div style="flex:1;font-size:13px;color:var(--muted)">${iLiked?`You liked <strong style="color:var(--text)">@${author.username}</strong>'s post`:''} ${myComment?`You commented on <strong style="color:var(--text)">@${author.username}</strong>'s post`:''}</div>
+          </div>`;
+        }).join('')}`:''}
+    </div>
+  `;
+}
+
+// ╔══════════════════════════════════════════╗
+// ║              RIGHT PANEL                ║
+// ╚══════════════════════════════════════════╝
+function renderRightPanel(){
+  const cu=DB.getUser(currentUser.id);
+  const allUsers=DB.getUsers().filter(u=>u.id!==cu.id&&!cu.following.includes(u.id));
+  const suggestions=allUsers.slice(0,4);
+  const html=suggestions.length>0?`
+    <div class="section-title">Who to follow</div>
+    ${suggestions.map(u=>`
+      <div class="suggestion-item" onclick="navigate('profile-user','${u.id}')">
+        ${avatarHtml(u,38)}
+        <div class="user-info" style="flex:1">
+          <div class="name" style="font-size:14px">${escHtml(u.name)}</div>
+          <div class="handle" style="font-size:12px">@${u.username}</div>
+        </div>
+        <button class="follow-btn" id="follow-btn-${u.id}" onclick="event.stopPropagation();toggleFollow('${u.id}')">Follow</button>
+      </div>`).join('')}`:'<div style="font-size:13px;color:var(--muted);padding:.5rem .75rem">You\'re following everyone!</div>';
+  document.getElementById('suggestions-panel').innerHTML=html;
+
+  const posts=DB.getPosts();
+  const likeCounts={};
+  posts.forEach(p=>likeCounts[p.authorId]=(likeCounts[p.authorId]||0)+p.likes.length);
+  const trending=Object.entries(likeCounts).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([uid])=>DB.getUser(uid)).filter(Boolean);
+  document.getElementById('trending-panel').innerHTML=trending.length>0?`
+    <div class="section-title">Top creators</div>
+    ${trending.map((u,i)=>`
+      <div class="suggestion-item" onclick="navigate('profile-user','${u.id}')">
+        <span style="font-size:16px;width:20px">${['🥇','🥈','🥉'][i]}</span>
+        ${avatarHtml(u,36)}
+        <div class="user-info">
+          <div class="name" style="font-size:14px">${escHtml(u.name)}</div>
+          <div class="handle" style="font-size:12px">${likeCounts[u.id]} likes</div>
+        </div>
+      </div>`).join('')}`:'';
+}
+
+// ╔══════════════════════════════════════════╗
+// ║              UTILS                      ║
+// ╚══════════════════════════════════════════╝
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+document.querySelectorAll('.modal-overlay').forEach(o=>{o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open')})});
+
+let toastTimer;
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast'+(type?' '+type:'');
+  clearTimeout(toastTimer);
+  setTimeout(()=>t.classList.add('show'),10);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+function renderCurrentPage(){
+  if(currentPage==='feed')renderFeed();
+  else if(currentPage==='dashboard')renderDashboard();
+  else if(currentPage==='profile-own')renderOwnProfile();
+  else if(currentPage==='profile-user'){
+    const uid=document.getElementById('user-profile-content').dataset.uid;
+    if(uid)renderUserProfile(uid);
+  }
+}
+
+// ╔══════════════════════════════════════════╗
+// ║              INIT                       ║
+// ╚══════════════════════════════════════════╝
+function initApp(){
+  currentUser=DB.getUser(localStorage.getItem('pulse_uid'));
+  if(!currentUser)return;
+  navigate('feed');
+}
+
+(function bootstrap(){
+  seedData();
+  if(checkSession()){
+    document.getElementById('auth-screen').style.display='none';
+    document.getElementById('app-shell').classList.add('visible');
+    initApp();
+  }
+})();
+</script>
+</body>
+</html>
